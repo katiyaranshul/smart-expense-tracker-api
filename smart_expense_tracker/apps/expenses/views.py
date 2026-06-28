@@ -19,7 +19,7 @@ class CategoryViewSet(StandardModelViewSet):
     destroy_message = "Category deleted successfully"
 
     def get_queryset(self):
-        return Category.objects.filter(user=self.request.user)
+        return Category.objects.filter(user=self.request.user).order_by("name")
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -40,7 +40,11 @@ class ExpenseViewSet(StandardModelViewSet):
     destroy_message = "Expense deleted successfully"
 
     def get_queryset(self):
-        return Expense.objects.select_related("category").filter(user=self.request.user)
+        return (
+            Expense.objects.select_related("category")
+            .filter(user=self.request.user)
+            .order_by("-expense_date", "-created_at")
+        )
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

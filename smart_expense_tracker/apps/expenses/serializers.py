@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from .models import Budget, Category, Expense
@@ -38,6 +39,12 @@ class ExpenseSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "category_name", "user", "created_at", "updated_at")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            self.fields["category"].queryset = Category.objects.filter(user=request.user)
+
     def validate_category(self, category):
         request = self.context["request"]
         if category.user_id != request.user.id:
@@ -59,6 +66,12 @@ class BudgetSerializer(serializers.ModelSerializer):
     def validate_month(self, value):
         if value < 1 or value > 12:
             raise serializers.ValidationError("Month must be between 1 and 12.")
+        return value
+
+    def validate_year(self, value):
+        max_year = timezone.localdate().year + 5
+        if value < 2000 or value > max_year:
+            raise serializers.ValidationError(f"Year must be between 2000 and {max_year}.")
         return value
 
     def validate_limit_amount(self, value):

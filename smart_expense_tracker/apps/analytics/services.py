@@ -1,7 +1,7 @@
 import calendar
 from decimal import Decimal
 
-from django.db.models import Count, DecimalField, F, Sum, Value
+from django.db.models import Count, DecimalField, Sum, Value
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -43,11 +43,11 @@ def category_summary(user, month=None, year=None):
     month, year = _period(month, year)
     rows = (
         Expense.objects.filter(user=user, expense_date__month=month, expense_date__year=year)
-        .values(category_name=F("category__name"))
+        .values("category__name")
         .annotate(total=_sum_amount())
         .order_by("-total")
     )
-    return [{"category": row["category_name"], "total": row["total"]} for row in rows]
+    return [{"category": row["category__name"], "total": row["total"]} for row in rows]
 
 
 def top_expenses(user, limit=5, month=None, year=None):
