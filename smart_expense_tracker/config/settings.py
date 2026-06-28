@@ -120,9 +120,33 @@ SIMPLE_JWT = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Smart Expense Tracker & Analytics API",
-    "DESCRIPTION": "REST API for expenses, budgets, categories, and spending analytics.",
+    "DESCRIPTION": (
+        "REST API for expenses, budgets, categories, and spending analytics. "
+        "Authenticate with JWT by sending `Authorization: Bearer <access_token>`."
+    ),
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SCHEMA_PATH_PREFIX": r"/api/v1",
+    "APPEND_COMPONENTS": {
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "JWT access token returned by the login endpoint.",
+            }
+        }
+    },
+    "SECURITY": [{"BearerAuth": []}],
+    "TAGS": [
+        {"name": "Authentication", "description": "Registration, login, and profile endpoints."},
+        {"name": "Categories", "description": "User-scoped expense categories."},
+        {"name": "Expenses", "description": "Expense CRUD with filtering and search."},
+        {"name": "Budgets", "description": "Monthly budget limits per user."},
+        {"name": "Analytics", "description": "Read-only spending summaries and budget status."},
+        {"name": "Health", "description": "Deployment health checks."},
+    ],
 }
 
 LOGGING = {

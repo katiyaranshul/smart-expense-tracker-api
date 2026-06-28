@@ -17,9 +17,9 @@ class RequestLoggingMiddleware:
         user = getattr(request, "user", None)
         username = user.get_username() if user and user.is_authenticated else "anonymous"
         logger.info(
-            "%s %s %s %.2fms user=%s",
+            "method=%s endpoint=%s status=%s duration_ms=%.2f user=%s",
             request.method,
-            request.get_full_path(),
+            request.path,
             response.status_code,
             duration_ms,
             username,

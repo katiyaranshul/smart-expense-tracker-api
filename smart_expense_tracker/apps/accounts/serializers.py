@@ -1,12 +1,16 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from apps.common.schema import REGISTER_REQUEST_EXAMPLE
 
 
 User = get_user_model()
 
 
+@extend_schema_serializer(examples=[REGISTER_REQUEST_EXAMPLE])
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True)

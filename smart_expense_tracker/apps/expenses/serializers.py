@@ -1,5 +1,8 @@
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
+
+from apps.common.schema import BUDGET_REQUEST_EXAMPLE, EXPENSE_REQUEST_EXAMPLE
 
 from .models import Budget, Category, Expense
 
@@ -20,6 +23,7 @@ class CategorySerializer(serializers.ModelSerializer):
         return value.strip()
 
 
+@extend_schema_serializer(examples=[EXPENSE_REQUEST_EXAMPLE])
 class ExpenseSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source="category.name", read_only=True)
 
@@ -57,6 +61,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
         return value
 
 
+@extend_schema_serializer(examples=[BUDGET_REQUEST_EXAMPLE])
 class BudgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Budget
