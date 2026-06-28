@@ -3,7 +3,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 
 from apps.common.responses import success_response
-from apps.common.schema import SUCCESS_RESPONSE_EXAMPLE
 
 
 @extend_schema(

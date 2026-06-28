@@ -1,128 +1,28 @@
 # Smart Expense Tracker & Analytics API
 
-Smart Expense Tracker & Analytics API is a backend system for managing personal expenses, budgets, categories, and spending insights. It is built with Django, Django REST Framework, PostgreSQL, JWT authentication, and Docker.
+Production-style Django REST Framework backend for personal expense tracking, budgets, categories, and spending analytics.
 
-## About The Project
+The application code lives in [`smart_expense_tracker/`](smart_expense_tracker/). See that directory's [README](smart_expense_tracker/README.md) for installation, environment variables, Docker commands, migrations, tests, and API examples.
 
-This project provides a secure REST API where each user can create an account, log in, organize expenses by category, set monthly budgets, and view analytics about their spending behavior.
+## Quick start
 
-The API is designed so every user's data is private. Categories, expenses, and budgets are always scoped to the authenticated user, meaning users can only view or modify their own records.
-
-## Main Features
-
-- User registration and JWT-based login
-- Authenticated user profile endpoint
-- Category management for organizing expenses
-- Expense tracking with amount, date, category, title, and description
-- Monthly budget management
-- Expense filtering by category, amount range, and date range
-- Search expenses by title
-- Sort expenses by amount or date
-- Paginated API responses
-- Spending analytics using Django ORM aggregations
-- Standard success and error response format
-- Request logging middleware
-- Swagger/OpenAPI documentation
-
-## How It Works
-
-Users first register and log in through the authentication endpoints. After login, the API returns access and refresh tokens. The access token is sent with protected requests using the `Authorization: Bearer <token>` header.
-
-Once authenticated, a user can create categories such as Food, Travel, Shopping, Bills, or Health. Expenses are then added under those categories with an amount and expense date.
-
-Budgets are created per month and year. The analytics endpoints compare monthly spending against the user's budget and return useful summaries such as total spent, remaining budget, percentage used, top expenses, and category-wise spending.
-
-## Core API Modules
-
-### Authentication
-
-Handles user registration, login, token refresh, and profile retrieval.
-
-```text
-POST /api/v1/auth/register/
-POST /api/v1/auth/login/
-POST /api/v1/auth/token/refresh/
-GET  /api/v1/auth/profile/
+```bash
+cd smart_expense_tracker
+cp .env.example .env
+docker compose up --build
 ```
 
-### Categories
+Then open:
 
-Allows users to create and manage their own expense categories. Category names are unique per user.
+- API docs: [http://127.0.0.1:8000/api/docs/](http://127.0.0.1:8000/api/docs/)
+- Health check: [http://127.0.0.1:8000/api/health/](http://127.0.0.1:8000/api/health/)
 
-```text
-/api/v1/categories/
-```
+## Highlights
 
-### Expenses
-
-Allows users to create, view, update, delete, filter, search, and order their own expenses.
-
-```text
-/api/v1/expenses/
-```
-
-Supported expense filters include:
-
-```text
-category
-min_amount
-max_amount
-start_date
-end_date
-search
-ordering
-```
-
-### Budgets
-
-Allows users to set one budget per month and year.
-
-```text
-/api/v1/budgets/
-```
-
-### Analytics
-
-Provides read-only spending insights for the authenticated user.
-
-```text
-GET /api/v1/analytics/monthly/
-GET /api/v1/analytics/category/
-GET /api/v1/analytics/top-expenses/
-GET /api/v1/analytics/budget-status/
-```
-
-Analytics endpoints support optional `month` and `year` query parameters.
-
-## Response Format
-
-Successful API responses follow this structure:
-
-```json
-{
-  "success": true,
-  "message": "Expense created successfully",
-  "data": {}
-}
-```
-
-Error responses follow this structure:
-
-```json
-{
-  "success": false,
-  "message": "Validation failed",
-  "errors": {}
-}
-```
-
-## Tech Stack
-
-- Python
-- Django
-- Django REST Framework
-- PostgreSQL
-- JWT Authentication
-- django-filter
-- drf-spectacular
-- Docker
+- JWT authentication with registration, login, and profile endpoints
+- User-scoped categories, expenses, and monthly budgets
+- Filtering, search, ordering, and pagination on expenses
+- Analytics endpoints for monthly totals, category breakdowns, top expenses, and budget status
+- Standardized success and error responses
+- OpenAPI/Swagger documentation via drf-spectacular
+- Docker Compose setup with PostgreSQL and API health checks

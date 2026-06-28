@@ -45,3 +45,32 @@ class AnalyticsAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["data"]["remaining_amount"], Decimal("550.00"))
         self.assertEqual(response.data["data"]["percentage_used"], Decimal("72.50"))
+
+    def test_category_analytics(self):
+        response = self.client.get(reverse("analytics-category"), {"month": 6, "year": 2026})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["data"]), 1)
+        self.assertEqual(response.data["data"][0]["category"], "Food")
+        self.assertEqual(response.data["data"][0]["total"], Decimal("1450.00"))
+
+    def test_top_expenses(self):
+        response = self.client.get(reverse("analytics-top-expenses"), {"month": 6, "year": 2026})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["data"][0]["title"], "Groceries")
+        self.assertEqual(response.data["data"][0]["amount"], "1200.00")
+
+
+class AnalyticsPermissionTests(APITestCase):
+    def test_analytics_endpoints_require_authentication(self):
+        endpoints = [
+            "analytics-monthly",
+            "analytics-category",
+            "analytics-top-expenses",
+            "analytics-budget-status",
+        ]
+
+        for endpoint in endpoints:
+            response = self.client.get(reverse(endpoint))
+            self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED, endpoint)

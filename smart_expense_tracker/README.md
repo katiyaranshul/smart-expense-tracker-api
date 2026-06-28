@@ -23,20 +23,166 @@ The API is designed so every user's data is private. Categories, expenses, and b
 - Standard success and error response format
 - Request logging middleware
 - Swagger/OpenAPI documentation
+- Public health check endpoint for deployments
 
-## How It Works
+## Tech Stack
 
-Users first register and log in through the authentication endpoints. After login, the API returns access and refresh tokens. The access token is sent with protected requests using the `Authorization: Bearer <token>` header.
+- Python
+- Django
+- Django REST Framework
+- PostgreSQL
+- JWT Authentication
+- django-filter
+- drf-spectacular
+- Docker
 
-Once authenticated, a user can create categories such as Food, Travel, Shopping, Bills, or Health. Expenses are then added under those categories with an amount and expense date.
+## Installation
 
-Budgets are created per month and year. The analytics endpoints compare monthly spending against the user's budget and return useful summaries such as total spent, remaining budget, percentage used, top expenses, and category-wise spending.
+### Local development (Python)
+
+```bash
+cd smart_expense_tracker
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+```
+
+### Environment variables
+
+Configure these values in `.env`:
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `SECRET_KEY` | Django secret key | development fallback |
+| `DEBUG` | Enable debug mode | `False` |
+| `ALLOWED_HOSTS` | Comma-separated hostnames | `localhost,127.0.0.1` |
+| `TIME_ZONE` | Application timezone | `UTC` |
+| `POSTGRES_DB` | Database name | `smart_expense_tracker` |
+| `POSTGRES_USER` | Database user | `postgres` |
+| `POSTGRES_PASSWORD` | Database password | `postgres` |
+| `POSTGRES_HOST` | Database host | `localhost` |
+| `POSTGRES_PORT` | Database port | `5432` |
+| `ACCESS_TOKEN_MINUTES` | JWT access token lifetime | `30` |
+| `REFRESH_TOKEN_DAYS` | JWT refresh token lifetime | `7` |
+| `REQUEST_LOG_LEVEL` | Request logger level | `INFO` |
+| `USE_SQLITE` | Use SQLite instead of PostgreSQL | `False` |
+
+For quick local testing without PostgreSQL, set `USE_SQLITE=True` in `.env`.
+
+## Running migrations
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+## Running the server
+
+```bash
+python manage.py runserver
+```
+
+The API is available at `http://127.0.0.1:8000/`.
+
+## Docker
+
+Build and start the API with PostgreSQL:
+
+```bash
+docker compose up --build
+```
+
+Useful commands:
+
+```bash
+docker compose build
+docker compose up -d
+docker compose logs -f api
+docker compose down
+```
+
+The API container runs migrations on startup and exposes port `8000`.
+
+## Running tests
+
+```bash
+USE_SQLITE=True python manage.py test
+```
+
+## API documentation
+
+- OpenAPI schema: `GET /api/schema/`
+- Swagger UI: `GET /api/docs/`
+- Health check: `GET /api/health/`
+
+## Authentication
+
+Register a user, then log in to receive JWT tokens. Send the access token with protected requests:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+### Register
+
+```http
+POST /api/v1/auth/register/
+Content-Type: application/json
+
+{
+  "username": "anshul",
+  "email": "anshul@example.com",
+  "password": "StrongPass123!",
+  "password_confirm": "StrongPass123!"
+}
+```
+
+Example response:
+
+```json
+{
+  "success": true,
+  "message": "User registered successfully",
+  "data": {
+    "id": 1,
+    "username": "anshul",
+    "email": "anshul@example.com",
+    "first_name": "",
+    "last_name": "",
+    "date_joined": "2026-06-25T12:00:00Z"
+  }
+}
+```
+
+### Login
+
+```http
+POST /api/v1/auth/login/
+Content-Type: application/json
+
+{
+  "username": "anshul",
+  "password": "StrongPass123!"
+}
+```
+
+Example response:
+
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "refresh": "eyJ...",
+    "access": "eyJ..."
+  }
+}
+```
 
 ## Core API Modules
 
 ### Authentication
-
-Handles user registration, login, token refresh, and profile retrieval.
 
 ```text
 POST /api/v1/auth/register/
@@ -47,21 +193,17 @@ GET  /api/v1/auth/profile/
 
 ### Categories
 
-Allows users to create and manage their own expense categories. Category names are unique per user.
-
 ```text
 /api/v1/categories/
 ```
 
 ### Expenses
 
-Allows users to create, view, update, delete, filter, search, and order their own expenses.
-
 ```text
 /api/v1/expenses/
 ```
 
-Supported expense filters include:
+Supported expense filters:
 
 ```text
 category
@@ -73,17 +215,25 @@ search
 ordering
 ```
 
-### Budgets
+Example create expense request:
 
-Allows users to set one budget per month and year.
+```json
+{
+  "title": "Lunch",
+  "amount": "250.00",
+  "expense_date": "2026-06-20",
+  "category": 1,
+  "description": "Team lunch"
+}
+```
+
+### Budgets
 
 ```text
 /api/v1/budgets/
 ```
 
 ### Analytics
-
-Provides read-only spending insights for the authenticated user.
 
 ```text
 GET /api/v1/analytics/monthly/
@@ -115,14 +265,3 @@ Error responses follow this structure:
   "errors": {}
 }
 ```
-
-## Tech Stack
-
-- Python
-- Django
-- Django REST Framework
-- PostgreSQL
-- JWT Authentication
-- django-filter
-- drf-spectacular
-- Docker

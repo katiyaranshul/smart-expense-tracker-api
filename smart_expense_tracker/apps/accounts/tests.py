@@ -31,3 +31,18 @@ class AuthenticationTests(APITestCase):
     def test_profile_requires_authentication(self):
         response = self.client.get(reverse("profile"))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_registration_rejects_duplicate_email(self):
+        User.objects.create_user(username="existing", email="anshul@example.com", password="StrongPass123!")
+        payload = {
+            "username": "new-user",
+            "email": "ANSHUL@example.com",
+            "password": "StrongPass123!",
+            "password_confirm": "StrongPass123!",
+        }
+
+        response = self.client.post(reverse("register"), payload, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data["success"])
+        self.assertIn("email", response.data["errors"])

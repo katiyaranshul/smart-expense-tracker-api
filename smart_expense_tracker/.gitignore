@@ -2,7 +2,13 @@
 .venv/
 __pycache__/
 *.py[cod]
-db.sqlite3
+*.egg-info/
 .pytest_cache/
 htmlcov/
 staticfiles/
+db.sqlite3
+.DS_Store
+*.log
+coverage/
+.mypy_cache/
+.ruff_cache/
