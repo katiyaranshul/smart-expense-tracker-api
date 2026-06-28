@@ -114,7 +114,7 @@ USE_SQLITE=True python manage.py test
 
 - OpenAPI schema: `GET /api/schema/`
 - Swagger UI: `GET /api/docs/`
-- Health check: `GET /api/health/`
+- Health check: `GET /health/` (also available at `/api/health/`)
 
 ## Authentication
 

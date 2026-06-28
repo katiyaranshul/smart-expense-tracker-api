@@ -15,7 +15,7 @@ docker compose up --build
 Then open:
 
 - API docs: [http://127.0.0.1:8000/api/docs/](http://127.0.0.1:8000/api/docs/)
-- Health check: [http://127.0.0.1:8000/api/health/](http://127.0.0.1:8000/api/health/)
+- Health check: [http://127.0.0.1:8000/health/](http://127.0.0.1:8000/health/)
 
 ## Highlights
 
